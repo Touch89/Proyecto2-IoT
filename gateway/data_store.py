@@ -1,102 +1,68 @@
-import json
-import os
-from datetime import datetime
-from config import DATA_FILE
+from datetime import datetime, timezone
+
+_ultimo_dato = {
+    "sensores": {"temp": 0.0, "hum": 0.0, "co2": 0},
+    "actuadores": {"riego": "OFF", "ventilador": "OFF"},
+    "modo": "automatico",
+    "ultimo_update": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+}
+_historial = []
+_comandos = []
+
+MAX_HISTORIAL = 100
 
 
-def init_storage():
+def guardar_dato(data: dict):
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    os.makedirs("data", exist_ok=True)
-
-    if not os.path.exists(DATA_FILE):
-        with open(DATA_FILE, "w") as f:
-            json.dump([], f)
-
-
-def save_reading(data):
-
-    with open(DATA_FILE, "r") as f:
-        readings = json.load(f)
-
-    data["timestamp"] = datetime.utcnow().isoformat()
-
-    readings.append(data)
-
-    with open(DATA_FILE, "w") as f:
-        json.dump(readings, f, indent=2)
-
-
-def get_all():
-
-    with open(DATA_FILE, "r") as f:
-        return json.load(f)
-
-
-def get_latest_per_node():
-
-    readings = get_all()
-
-    latest = {}
-
-    for r in readings:
-        node = r["nodo"]
-        latest[node] = r
-
-    return latest
-
-
-def get_history(limit=50):
-
-    readings = get_all()
-
-    return readings[-limit:]
-
-
-def get_stats():
-
-    readings = get_all()
-
-    stats = {}
-
-    for r in readings:
-
-        node = r["nodo"]
-
-        if node not in stats:
-
-            stats[node] = {
-                "sensores": [],
-                "actuadores": [],
-                "modo": [],
-                "ultimo_update": []
-            }
-
-        stats[node]["sensores"].append(r["sensores"])
-        stats[node]["actuadores"].append(r["actuadores"])
-        stats[node]["modo"].append(r["modo"])
-        stats[node]["ultimo_update"].append(r["ultimo_update"])
-
-
-    result = {}
-
-    for node, values in stats.items():
-
-        result[node] = {
-            "sensores": {
-                "temp": max(values["sensores"]),
-                "hum": max(values["sensores"]),
-                "co2": max(values["sensores"])
-            },
-            "actuadores": {
-                "riego": (values["actuadores"]),
-                "ventilador": (values["humedad"])
-            },
-            "modo": {
-                "automatico": (values["modo"])
-            },
-            "ultima_update": {
-                "ultimo_update": (values["modo"])
-            }
+    if "sensores" in data:
+        sensores = data["sensores"]
+    else:
+        sensores = {
+            "temp": data.get("temp", _ultimo_dato["sensores"]["temp"]),
+            "hum":  data.get("hum",  _ultimo_dato["sensores"]["hum"]),
+            "co2":  data.get("co2",  _ultimo_dato["sensores"]["co2"]),
         }
 
-    return result
+    _ultimo_dato["sensores"] = sensores
+    _ultimo_dato["ultimo_update"] = ts
+
+    _historial.append({
+        "sensores": sensores,
+        "timestamp": ts,
+    })
+    if len(_historial) > MAX_HISTORIAL:
+        _historial.pop(0)
+
+
+def get_estado() -> dict:
+    return {
+        "sensores":     _ultimo_dato["sensores"],
+        "actuadores":   _ultimo_dato["actuadores"],
+        "modo":         _ultimo_dato["modo"],
+        "ultimo_update": _ultimo_dato["ultimo_update"],
+    }
+
+
+def get_historial(limit: int = 30) -> list:
+    return _historial[-limit:]
+
+
+def agregar_comando(actuador: str, accion: str) -> dict:
+    cmd = {"actuador": actuador, "accion": accion, "entregado": False}
+    _comandos.append(cmd)
+    _ultimo_dato["actuadores"][actuador] = accion
+    _ultimo_dato["modo"] = "manual"
+    return cmd
+
+
+def get_comandos_pendientes() -> list:
+    pending = [c for c in _comandos if not c["entregado"]]
+    for c in pending:
+        c["entregado"] = True
+    return [{"actuador": c["actuador"], "accion": c["accion"]} for c in pending]
+
+
+def set_modo(modo: str):
+    if modo in ("automatico", "manual"):
+        _ultimo_dato["modo"] = modo
