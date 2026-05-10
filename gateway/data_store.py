@@ -65,34 +65,37 @@ def get_stats():
         if node not in stats:
 
             stats[node] = {
-                "temperatura": [],
-                "humedad": [],
-                "luz": []
+                "sensores": [],
+                "actuadores": [],
+                "modo": [],
+                "ultimo_update": []
             }
 
-        stats[node]["temperatura"].append(r["temperatura"])
-        stats[node]["humedad"].append(r["humedad"])
-        stats[node]["luz"].append(r["luz"])
+        stats[node]["sensores"].append(r["sensores"])
+        stats[node]["actuadores"].append(r["actuadores"])
+        stats[node]["modo"].append(r["modo"])
+        stats[node]["ultimo_update"].append(r["ultimo_update"])
+
 
     result = {}
 
     for node, values in stats.items():
 
         result[node] = {
-            "temperatura": {
-                "min": min(values["temperatura"]),
-                "max": max(values["temperatura"]),
-                "avg": sum(values["temperatura"]) / len(values["temperatura"])
+            "sensores": {
+                "temp": max(values["sensores"]),
+                "hum": max(values["sensores"]),
+                "co2": max(values["sensores"])
             },
-            "humedad": {
-                "min": min(values["humedad"]),
-                "max": max(values["humedad"]),
-                "avg": sum(values["humedad"]) / len(values["humedad"])
+            "actuadores": {
+                "riego": (values["actuadores"]),
+                "ventilador": (values["humedad"])
             },
-            "luz": {
-                "min": min(values["luz"]),
-                "max": max(values["luz"]),
-                "avg": sum(values["luz"]) / len(values["luz"])
+            "modo": {
+                "automatico": (values["modo"])
+            },
+            "ultima_update": {
+                "ultimo_update": (values["modo"])
             }
         }
 
