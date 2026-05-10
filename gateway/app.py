@@ -1,76 +1,64 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-from data_store import get_latest_per_node, get_history, get_stats
-from mqtt_client import MQTTClient
+import data_store
 
 app = Flask(__name__)
-
 CORS(app)
 
-mqtt_client = MQTTClient()
+
+@app.route("/datos", methods=["POST"])
+def datos():
+    data = request.get_json(force=True, silent=True)
+    if not data:
+        return jsonify({"error": "JSON requerido"}), 400
+    data_store.guardar_dato(data)
+    return jsonify({"ok": True}), 201
 
 
-@app.route("/api/latest")
-
-def latest():
-
-    return jsonify(get_latest_per_node())
+@app.route("/estado", methods=["GET"])
+def estado():
+    return jsonify(data_store.get_estado())
 
 
-@app.route("/api/history")
-
-def history():
-
-    limit = request.args.get("limit", default=50, type=int)
-
-    return jsonify(get_history(limit))
+@app.route("/historial", methods=["GET"])
+def historial():
+    limit = request.args.get("limit", default=30, type=int)
+    return jsonify(data_store.get_historial(limit))
 
 
-@app.route("/api/stats")
-
-def stats():
-
-    return jsonify(get_stats())
-
-
-@app.route("/api/control", methods=["POST"])
-
+@app.route("/control", methods=["POST"])
 def control():
+    data = request.get_json(force=True, silent=True)
+    if not data:
+        return jsonify({"error": "JSON requerido"}), 400
 
-    data = request.json
+    actuador = data.get("actuador")
+    accion = str(data.get("accion", ""))
 
-    node = data.get("node")
+    if actuador not in ("riego", "ventilador"):
+        return jsonify({"error": "actuador debe ser 'riego' o 'ventilador'"}), 400
+    if accion not in ("ON", "OFF") and not accion.isdigit():
+        return jsonify({"error": "accion debe ser ON, OFF o 0-100"}), 400
 
-    state = data.get("state")
+    data_store.agregar_comando(actuador, accion)
+    return jsonify({"ok": True, "actuador": actuador, "accion": accion, "modo": "manual"})
 
-    if node is None or state is None:
 
-        return jsonify({"error": "node and state required"}), 400
-
-    mqtt_client.publish_control(node, state)
-
-    return jsonify({
-        "status": "command sent",
-        "node": node,
-        "state": state
-    })
+@app.route("/comandos/pendientes", methods=["GET"])
+def comandos_pendientes():
+    return jsonify(data_store.get_comandos_pendientes())
 
 
 @app.errorhandler(404)
-
 def not_found(e):
-
     return jsonify({"error": "not found"}), 404
 
 
 @app.errorhandler(500)
-
 def server_error(e):
-
     return jsonify({"error": "server error"}), 500
 
 
 if __name__ == "__main__":
-
-    app.run(host="10.10.1.201", port=5000)
+    app.run(host="0.0.0.0", port=5000, debug=True)

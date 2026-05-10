@@ -9,7 +9,6 @@ interface SensorData {
   temp: number;
   hum: number;
   co2: number;
-  timestamp: string;
 }
 
 interface ActuatorState {
@@ -24,8 +23,8 @@ export default function App() {
     temp: 25,
     hum: 60,
     co2: 400,
-    timestamp: new Date().toISOString()
   });
+  const [lastUpdate, setLastUpdate] = useState<string>(new Date().toISOString());
   const [actuatorState, setActuatorState] = useState<ActuatorState>({
     riego: false,
     ventilador: false
@@ -45,7 +44,19 @@ export default function App() {
             setSensorData(data.sensores);
             setIsConnected(true);
 
-            // Actualizar histórico
+            if (data.actuadores) {
+              setActuatorState({
+                riego: data.actuadores.riego === 'ON',
+                ventilador: data.actuadores.ventilador === 'ON',
+              });
+            }
+            if (data.modo) {
+              setModoAutomatico(data.modo === 'automatico');
+            }
+            if (data.ultimo_update) {
+              setLastUpdate(data.ultimo_update);
+            }
+
             const now = new Date();
             const timeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
             setTempHistory(prev => [...prev.slice(-29), { tiempo: timeStr, temp: data.sensores.temp }]);
@@ -66,15 +77,14 @@ export default function App() {
   }, [apiUrl]);
 
   const useMockData = () => {
-    setSensorData(prev => ({
+    const now = new Date();
+    const timeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+    setSensorData({
       temp: 20 + Math.random() * 15,
       hum: 40 + Math.random() * 40,
       co2: 350 + Math.random() * 300,
-      timestamp: new Date().toISOString()
-    }));
-
-    const now = new Date();
-    const timeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+    });
+    setLastUpdate(now.toISOString());
     setTempHistory(prev => [...prev.slice(-29), { tiempo: timeStr, temp: 20 + Math.random() * 15 }]);
   };
 
@@ -270,7 +280,7 @@ export default function App() {
             <li>• Condiciones normales → Apagar actuadores</li>
           </ul>
           <p className="text-xs text-gray-500 mt-4">
-            Última actualización: {new Date(sensorData.timestamp).toLocaleString('es-ES')}
+            Última actualización: {new Date(lastUpdate).toLocaleString('es-ES')}
           </p>
         </div>
       </div>
