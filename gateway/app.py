@@ -2,9 +2,13 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 import data_store
+from mqtt_client import MQTTClient
 
 app = Flask(__name__)
 CORS(app)
+
+mqtt_client = MQTTClient()
+mqtt_client.start()
 
 
 @app.route("/datos", methods=["POST"])
@@ -42,6 +46,7 @@ def control():
         return jsonify({"error": "accion debe ser ON, OFF o 0-100"}), 400
 
     data_store.agregar_comando(actuador, accion)
+    mqtt_client.publish_control(actuador, accion)
     return jsonify({"ok": True, "actuador": actuador, "accion": accion, "modo": "manual"})
 
 

@@ -63,6 +63,11 @@ def get_comandos_pendientes() -> list:
     return [{"actuador": c["actuador"], "accion": c["accion"]} for c in pending]
 
 
+def actualizar_actuador_por_ack(actuador: str, estado: str):
+    if actuador in _ultimo_dato["actuadores"]:
+        _ultimo_dato["actuadores"][actuador] = estado
+
+
 def set_modo(modo: str):
     if modo in ("automatico", "manual"):
         _ultimo_dato["modo"] = modo
