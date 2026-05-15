@@ -1,0 +1,11 @@
+Ejemplo de lo que tira la ESP32 en el puerto serial en arduino
+
+========== SENSOR DATA ==========
+Temperatura: -0.40 °C
+Humedad: 23.70 %
+Luz LDR: 4095
+
+JSON publicado:
+{"temp":-0.4,"hum":23.7,"co2":4095,"dispositivo":"ESP32-A"}
+=================================
+
