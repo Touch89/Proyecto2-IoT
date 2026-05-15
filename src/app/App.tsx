@@ -17,7 +17,7 @@ interface ActuatorState {
 }
 
 export default function App() {
-  const [apiUrl, setApiUrl] = useState('https://your-api.onrender.com');
+  const [apiUrl, setApiUrl] = useState('http://localhost:5000');
   const [modoAutomatico, setModoAutomatico] = useState(false);
   const [sensorData, setSensorData] = useState<SensorData>({
     temp: 25,

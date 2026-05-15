@@ -1,0 +1,22 @@
+Flujos Node-Red explicados
+
+**Se convierten a objeto de java porque mosquitto entiende MQTT pero la API y dashboard HTTP**
+
+Uplink
+- El MQTT IN se suscribe al topic y recibe los datos.
+- El nodo json convierte el texto recibido en un objeto de java.
+- El timestamp agrega fecha a la hora de recibir el objeto principalmente para tener un historial.
+- El nodo delay como indica la asignación permite que antes de realizar todo esto espera 5 segundos para evitar spam y sobresaturación.
+- El http request realiza un POST de los datos recibidos hacia la API y de ahí son recibidos por la dashboard y son deplegados.
+- El debug completa la acción.
+
+Downlink
+- El inject inyecta un timestamp pero lo principal es que dispara el flujo.
+- Una vez iniciado el http request obtiene los comandos pendientes y los jala en texto json.
+- Después lo convierte de json a objeto de java.
+- Posteriormente se envia el objeto de java con los comandos pendientes a una función
+
+Flujo ACK
+- Primero el nodo se suscribe a el topic. Y este recibe la orden.
+- El nodo json convierte la orden en un objeto de java.
+- Al debuggear esto se envía a la API/Dashboard.

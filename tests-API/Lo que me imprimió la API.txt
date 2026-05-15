@@ -1,0 +1,21 @@
+Lo que me imprimió la API
+
+http://localhost:5000/estado
+{
+  "actuadores": {
+    "riego": "ON",
+    "ventilador": "ON"
+  },
+  "modo": "manual",
+  "sensores": {
+    "co2": 4095,
+    "hum": 18,
+    "temp": 1.6
+  },
+  "ultimo_update": "2026-05-14T23:40:41Z"
+}
+
+http://localhost:5000/comandos/pendientes
+[]
+
+**Nunca logre hacer que tire algún comando pendiente**

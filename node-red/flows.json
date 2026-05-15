@@ -1,0 +1,372 @@
+[
+    {
+        "id": "41355c34ad999b18",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "87cb5c614804044d",
+        "type": "comment",
+        "z": "41355c34ad999b18",
+        "name": "uplink",
+        "info": "Duarte esta bien guapo",
+        "x": 150,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "9eeb56b8f5fead43",
+        "type": "mqtt in",
+        "z": "41355c34ad999b18",
+        "name": "",
+        "topic": "invernadero/sensores",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "daea7f21549c36ea",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 200,
+        "y": 160,
+        "wires": [
+            [
+                "eafb70f2cc58bbfc"
+            ]
+        ]
+    },
+    {
+        "id": "c5b12756d8f5a2f2",
+        "type": "function",
+        "z": "41355c34ad999b18",
+        "name": "timestamp",
+        "func": "msg.payload.timestamp = new Date().toISOString();\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 590,
+        "y": 160,
+        "wires": [
+            [
+                "da2767d3430855fc"
+            ]
+        ]
+    },
+    {
+        "id": "eafb70f2cc58bbfc",
+        "type": "json",
+        "z": "41355c34ad999b18",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 410,
+        "y": 160,
+        "wires": [
+            [
+                "c5b12756d8f5a2f2"
+            ]
+        ]
+    },
+    {
+        "id": "da2767d3430855fc",
+        "type": "delay",
+        "z": "41355c34ad999b18",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "5",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 800,
+        "y": 160,
+        "wires": [
+            [
+                "7671f20c3ad7f0ec"
+            ]
+        ]
+    },
+    {
+        "id": "7671f20c3ad7f0ec",
+        "type": "http request",
+        "z": "41355c34ad999b18",
+        "name": "",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://localhost:5000/datos",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "Content-Type",
+                "keyValue": "",
+                "valueType": "application/json",
+                "valueValue": ""
+            }
+        ],
+        "x": 1010,
+        "y": 160,
+        "wires": [
+            [
+                "9bd75c7dadaf3bc5"
+            ]
+        ]
+    },
+    {
+        "id": "9bd75c7dadaf3bc5",
+        "type": "debug",
+        "z": "41355c34ad999b18",
+        "name": "debug 5",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1200,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "5e0c3e282e5d2928",
+        "type": "comment",
+        "z": "41355c34ad999b18",
+        "name": "downlink",
+        "info": "Duarte esta bien guapo",
+        "x": 160,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "3a388a48b93da6b0",
+        "type": "comment",
+        "z": "41355c34ad999b18",
+        "name": "dashboard",
+        "info": "Duarte esta bien guapo",
+        "x": 160,
+        "y": 760,
+        "wires": []
+    },
+    {
+        "id": "1ecc77dc1d6f40df",
+        "type": "comment",
+        "z": "41355c34ad999b18",
+        "name": "Flujo ACK",
+        "info": "Duarte esta bien guapo",
+        "x": 160,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "a7110a71d61d857b",
+        "type": "inject",
+        "z": "41355c34ad999b18",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "5",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 170,
+        "y": 320,
+        "wires": [
+            [
+                "15e6ced4947558dd"
+            ]
+        ]
+    },
+    {
+        "id": "15e6ced4947558dd",
+        "type": "http request",
+        "z": "41355c34ad999b18",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "http://localhost:5000/comandos/pendientes",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 370,
+        "y": 320,
+        "wires": [
+            [
+                "f0f23b8108781818"
+            ]
+        ]
+    },
+    {
+        "id": "f0f23b8108781818",
+        "type": "json",
+        "z": "41355c34ad999b18",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 550,
+        "y": 320,
+        "wires": [
+            [
+                "117e365ceeab2e92"
+            ]
+        ]
+    },
+    {
+        "id": "625e9c39fe11ec59",
+        "type": "mqtt out",
+        "z": "41355c34ad999b18",
+        "name": "",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "daea7f21549c36ea",
+        "x": 890,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "117e365ceeab2e92",
+        "type": "function",
+        "z": "41355c34ad999b18",
+        "name": "function 1",
+        "func": "if (msg.payload.length === 0) {\n    return null;\n}\n\nlet comandos = [];\n\nfor (let cmd of msg.payload) {\n\n    comandos.push({\n        topic: \"invernadero/control/\" + cmd.actuador,\n        payload: cmd.accion\n    });\n}\n\nreturn [comandos];",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 320,
+        "wires": [
+            [
+                "625e9c39fe11ec59"
+            ]
+        ]
+    },
+    {
+        "id": "55157752f641dd75",
+        "type": "mqtt in",
+        "z": "41355c34ad999b18",
+        "name": "",
+        "topic": "invernadero/ack",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "daea7f21549c36ea",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 180,
+        "y": 480,
+        "wires": [
+            [
+                "bac22a86e572d254"
+            ]
+        ]
+    },
+    {
+        "id": "b431d9b8ae383b68",
+        "type": "debug",
+        "z": "41355c34ad999b18",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 540,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "bac22a86e572d254",
+        "type": "json",
+        "z": "41355c34ad999b18",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 370,
+        "y": 480,
+        "wires": [
+            [
+                "b431d9b8ae383b68"
+            ]
+        ]
+    },
+    {
+        "id": "daea7f21549c36ea",
+        "type": "mqtt-broker",
+        "name": "jon",
+        "broker": "10.10.2.250",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]
